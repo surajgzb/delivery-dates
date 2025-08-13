@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/email_templates.xsd">
+
+    <template id="warehouse_alert_email_template"
+              label="Warehouse Fragile Order Alert"
+              file="warehouse_alert_email.html"
+              type="html"
+              module="SR_DeliveryDate" />
+</config>
