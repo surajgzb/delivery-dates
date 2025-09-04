@@ -71,14 +71,18 @@ class SaveToOrderTest extends TestCase
             ->method('getQuoteId')
             ->willReturn(123);
 
-        // Mock order setData calls using withConsecutive
+        // Track setData calls for verification
+        $setDataCalls = [];
+        $orderMock->method('setData')
+            ->willReturnCallback(function ($key, $value) use (&$setDataCalls) {
+                $setDataCalls[] = [$key, $value];
+                return $this->returnSelf();
+            });
+
+        // Mock order to expect exactly two setData calls
         $orderMock->expects($this->exactly(2))
             ->method('setData')
-            ->withConsecutive(
-                [$this->equalTo('delivery_instructions'), $this->equalTo($deliveryInstructions)],
-                [$this->equalTo('delivery_date'), $this->equalTo($validDeliveryDate)]
-            )
-            ->willReturnOnConsecutiveCalls($this->returnSelf(), $this->returnSelf());
+            ->willReturnSelf();
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
@@ -104,8 +108,16 @@ class SaveToOrderTest extends TestCase
         $this->messageManagerMock->expects($this->never())
             ->method('addErrorMessage');
 
-        // Execute the observer and verify it returns itself
+        // Execute the observer
         $result = $this->observer->execute($observerMock);
+
+        // Verify setData calls
+        $this->assertEquals([
+            ['delivery_instructions', $deliveryInstructions],
+            ['delivery_date', $validDeliveryDate]
+        ], $setDataCalls);
+
+        // Verify observer returns itself
         $this->assertSame($this->observer, $result);
     }
 
@@ -184,14 +196,18 @@ class SaveToOrderTest extends TestCase
             ->method('getQuoteId')
             ->willReturn(123);
 
-        // Mock order setData calls using withConsecutive
+        // Track setData calls for verification
+        $setDataCalls = [];
+        $orderMock->method('setData')
+            ->willReturnCallback(function ($key, $value) use (&$setDataCalls) {
+                $setDataCalls[] = [$key, $value];
+                return $this->returnSelf();
+            });
+
+        // Mock order to expect exactly two setData calls
         $orderMock->expects($this->exactly(2))
             ->method('setData')
-            ->withConsecutive(
-                [$this->equalTo('delivery_instructions'), $this->equalTo($deliveryInstructions)],
-                [$this->equalTo('delivery_date'), $this->equalTo('')]
-            )
-            ->willReturnOnConsecutiveCalls($this->returnSelf(), $this->returnSelf());
+            ->willReturnSelf();
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
@@ -217,8 +233,16 @@ class SaveToOrderTest extends TestCase
         $this->messageManagerMock->expects($this->never())
             ->method('addErrorMessage');
 
-        // Execute the observer and verify it returns itself
+        // Execute the observer
         $result = $this->observer->execute($observerMock);
+
+        // Verify setData calls
+        $this->assertEquals([
+            ['delivery_instructions', $deliveryInstructions],
+            ['delivery_date', '']
+        ], $setDataCalls);
+
+        // Verify observer returns itself
         $this->assertSame($this->observer, $result);
     }
 }
