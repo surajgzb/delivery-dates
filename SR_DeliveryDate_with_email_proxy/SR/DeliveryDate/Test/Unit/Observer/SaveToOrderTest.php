@@ -66,17 +66,20 @@ class SaveToOrderTest extends TestCase
             ->with('order')
             ->willReturn($orderMock);
 
-        // Mock order to return quote ID and allow setting data
+        // Mock order to return quote ID
         $orderMock->expects($this->once())
             ->method('getQuoteId')
             ->willReturn(123);
-        $orderMock->expects($this->exactly(2))
+
+        // Mock order setData calls using at() to specify order
+        $orderMock->expects($this->at(0))
             ->method('setData')
-            ->withConsecutive(
-                ['delivery_instructions', $deliveryInstructions],
-                ['delivery_date', $validDeliveryDate]
-            )
-            ->willReturn($this->returnSelf());
+            ->with('delivery_instructions', $deliveryInstructions)
+            ->willReturnSelf();
+        $orderMock->expects($this->at(1))
+            ->method('setData')
+            ->with('delivery_date', $validDeliveryDate)
+            ->willReturnSelf();
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
@@ -177,17 +180,20 @@ class SaveToOrderTest extends TestCase
             ->with('order')
             ->willReturn($orderMock);
 
-        // Mock order to return quote ID and allow setting data
+        // Mock order to return quote ID
         $orderMock->expects($this->once())
             ->method('getQuoteId')
             ->willReturn(123);
-        $orderMock->expects($this->exactly(2))
+
+        // Mock order setData calls using at() to specify order
+        $orderMock->expects($this->at(0))
             ->method('setData')
-            ->withConsecutive(
-                ['delivery_instructions', $deliveryInstructions],
-                ['delivery_date', '']
-            )
-            ->willReturn($this->returnSelf());
+            ->with('delivery_instructions', $deliveryInstructions)
+            ->willReturnSelf();
+        $orderMock->expects($this->at(1))
+            ->method('setData')
+            ->with('delivery_date', '')
+            ->willReturnSelf();
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
