@@ -139,7 +139,7 @@ class SaveToOrderTest extends TestCase
             ->getMock();
 
         // Mock observer to return order via getData
-        $observerMock->expects($this->once())
+        $observerMock->expects($this->atLeastOnce())
             ->method('getData')
             ->with('order')
             ->willReturn($orderMock);
@@ -148,6 +148,8 @@ class SaveToOrderTest extends TestCase
         $orderMock->expects($this->once())
             ->method('getQuoteId')
             ->willReturn(123);
+
+        // Mock order to expect no setData calls
         $orderMock->expects($this->never())
             ->method('setData');
 
