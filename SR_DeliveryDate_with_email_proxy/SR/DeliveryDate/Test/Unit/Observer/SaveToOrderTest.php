@@ -58,7 +58,10 @@ class SaveToOrderTest extends TestCase
         // Mock the observer and order
         $observerMock = $this->createMock(Observer::class);
         $orderMock = $this->createMock(Order::class);
-        $quoteMock = $this->createMock(Quote::class);
+        $quoteMock = $this->getMockBuilder(Quote::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['getDeliveryDate', 'getDeliveryInstructions'])
+            ->getMock();
 
         // Mock observer to return order via getData
         $observerMock->expects($this->once())
@@ -130,7 +133,10 @@ class SaveToOrderTest extends TestCase
         // Mock the observer and order
         $observerMock = $this->createMock(Observer::class);
         $orderMock = $this->createMock(Order::class);
-        $quoteMock = $this->createMock(Quote::class);
+        $quoteMock = $this->getMockBuilder(Quote::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['getDeliveryDate', 'getDeliveryInstructions'])
+            ->getMock();
 
         // Mock observer to return order via getData
         $observerMock->expects($this->once())
@@ -183,7 +189,10 @@ class SaveToOrderTest extends TestCase
         // Mock the observer and order
         $observerMock = $this->createMock(Observer::class);
         $orderMock = $this->createMock(Order::class);
-        $quoteMock = $this->createMock(Quote::class);
+        $quoteMock = $this->getMockBuilder(Quote::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['getDeliveryDate', 'getDeliveryInstructions'])
+            ->getMock();
 
         // Mock observer to return order via getData
         $observerMock->expects($this->once())
