@@ -44,18 +44,18 @@ class ValidatorTest extends TestCase
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage('Invalid date selected, please select date after today.');
 
-        $currentDate = (new \DateTime())->format('Y-m-d');
-        $pastDate = (new \DateTime())->modify('-1 day')->format('Y-m-d');
+        $currentDate = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d');
+        $pastDate = (new \DateTime('now', new \DateTimeZone('UTC')))->modify('-1 day')->format('Y-m-d');
 
         $this->dateTimeMock->method('date')
             ->willReturnCallback(function ($format, $input = null) use ($currentDate, $pastDate) {
-                if ($format !== 'Y-m-d') {
-                    throw new \InvalidArgumentException('Only Y-m-d format is supported');
+                if ($format !== 'Y-m-d' && $format !== 'Y-m-d H:i:s') {
+                    throw new \InvalidArgumentException('Only Y-m-d or Y-m-d H:i:s format is supported');
                 }
                 if ($input === null) {
-                    return $currentDate;
+                    return $format === 'Y-m-d' ? $currentDate : $currentDate . ' 00:00:00';
                 }
-                return $pastDate;
+                return $format === 'Y-m-d' ? $pastDate : $pastDate . ' 00:00:00';
             });
 
         $this->validator->validate($pastDate);
@@ -66,84 +66,89 @@ class ValidatorTest extends TestCase
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessageMatches('/Delivery on the selected date is not possible. The earliest delivery is on .* or later./');
 
-        $currentDate = (new \DateTime())->format('Y-m-d');
-        $deliveryDate = (new \DateTime())->modify('+1 day')->format('Y-m-d');
-        $minValidDate = (new \DateTime())->modify('+2 days')->format('Y-m-d');
+        $currentDate = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d');
+        $deliveryDate = (new \DateTime('now', new \DateTimeZone('UTC')))->modify('+1 day')->format('Y-m-d');
+        $minValidDate = (new \DateTime('now', new \DateTimeZone('UTC')))->modify('+2 days')->format('Y-m-d');
+        $minDays = 2;
+        $minDaysTimestamp = (new \DateTime('now', new \DateTimeZone('UTC')))->modify("+{$minDays} days")->getTimestamp();
 
         $this->dateTimeMock->method('date')
-            ->willReturnCallback(function ($format, $input = null) use ($currentDate, $deliveryDate, $minValidDate) {
-                if ($format !== 'Y-m-d') {
-                    throw new \InvalidArgumentException('Only Y-m-d format is supported');
+            ->willReturnCallback(function ($format, $input = null) use ($currentDate, $deliveryDate, $minValidDate, $minDaysTimestamp) {
+                if ($format !== 'Y-m-d' && $format !== 'Y-m-d H:i:s') {
+                    throw new \InvalidArgumentException('Only Y-m-d or Y-m-d H:i:s format is supported');
                 }
                 if ($input === null) {
-                    return $currentDate;
+                    return $format === 'Y-m-d' ? $currentDate : $currentDate . ' 00:00:00';
                 }
                 if ($input === $deliveryDate) {
-                    return $deliveryDate;
+                    return $format === 'Y-m-d' ? $deliveryDate : $deliveryDate . ' 00:00:00';
                 }
-                if (strpos($input, '+2 days') !== false) {
-                    return $minValidDate;
+                if (is_numeric($input) && $input === $minDaysTimestamp) {
+                    return $format === 'Y-m-d' ? $minValidDate : $minValidDate . ' 00:00:00';
                 }
-                return $input;
+                return $format === 'Y-m-d' ? $input : $input . ' 00:00:00';
             });
 
         $this->scopeConfigMock->method('getValue')
             ->with(Validator::XML_PATH_MIN_DAYS, ScopeInterface::SCOPE_STORE)
-            ->willReturn(2);
+            ->willReturn($minDays);
 
         $this->validator->validate($deliveryDate);
     }
 
     public function testValidDateReturnsTrue()
     {
-        $currentDate = (new \DateTime())->format('Y-m-d');
-        $validDate = (new \DateTime())->modify('+3 days')->format('Y-m-d');
-        $minValidDate = (new \DateTime())->modify('+2 days')->format('Y-m-d');
+        $currentDate = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d');
+        $validDate = (new \DateTime('now', new \DateTimeZone('UTC')))->modify('+3 days')->format('Y-m-d');
+        $minValidDate = (new \DateTime('now', new \DateTimeZone('UTC')))->modify('+2 days')->format('Y-m-d');
+        $minDays = 2;
+        $minDaysTimestamp = (new \DateTime('now', new \DateTimeZone('UTC')))->modify("+{$minDays} days")->getTimestamp();
 
         $this->dateTimeMock->method('date')
-            ->willReturnCallback(function ($format, $input = null) use ($currentDate, $validDate, $minValidDate) {
-                if ($format !== 'Y-m-d') {
-                    throw new \InvalidArgumentException('Only Y-m-d format is supported');
+            ->willReturnCallback(function ($format, $input = null) use ($currentDate, $validDate, $minValidDate, $minDaysTimestamp) {
+                if ($format !== 'Y-m-d' && $format !== 'Y-m-d H:i:s') {
+                    throw new \InvalidArgumentException('Only Y-m-d or Y-m-d H:i:s format is supported');
                 }
                 if ($input === null) {
-                    return $currentDate;
+                    return $format === 'Y-m-d' ? $currentDate : $currentDate . ' 00:00:00';
                 }
                 if ($input === $validDate) {
-                    return $validDate;
+                    return $format === 'Y-m-d' ? $validDate : $validDate . ' 00:00:00';
                 }
-                if (strpos($input, '+2 days') !== false) {
-                    return $minValidDate;
+                if (is_numeric($input) && $input === $minDaysTimestamp) {
+                    return $format === 'Y-m-d' ? $minValidDate : $minValidDate . ' 00:00:00';
                 }
-                return $input;
+                return $format === 'Y-m-d' ? $input : $input . ' 00:00:00';
             });
 
         $this->scopeConfigMock->method('getValue')
             ->with(Validator::XML_PATH_MIN_DAYS, ScopeInterface::SCOPE_STORE)
-            ->willReturn(2);
+            ->willReturn($minDays);
 
         $this->assertTrue($this->validator->validate($validDate));
     }
 
     public function testNegativeMinDaysIsTreatedAsZero()
     {
-        $currentDate = (new \DateTime())->format('Y-m-d');
-        $sameDate = (new \DateTime())->format('Y-m-d');
+        $currentDate = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d');
+        $sameDate = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d');
+        $zeroDaysTimestamp = (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp();
 
         $this->dateTimeMock->method('date')
-            ->willReturnCallback(function ($format, $input = null) use ($currentDate, $sameDate) {
-                if ($format !== 'Y-m-d') {
-                    throw new \InvalidArgumentException('Only Y-m-d format is supported');
+            ->willReturnCallback(function ($format, $input = null) use ($currentDate, $sameDate, $zeroDaysTimestamp) {
+                if ($format !== 'Y-m-d' && $format !== 'Y-m-d H:i:s') {
+                    throw new \InvalidArgumentException('Only Y-m-d or Y-m-d H:i:s format is supported');
                 }
                 if ($input === null) {
-                    return $currentDate;
+                    return $format === 'Y-m-d' ? $currentDate : $currentDate . ' 00:00:00';
                 }
                 if ($input === $sameDate) {
-                    return $sameDate;
+                    return $format === 'Y-m-d' ? $sameDate : $sameDate . ' 00:00:00';
                 }
-                if (strpos($input, '+0 days') !== false) {
-                    return $currentDate;
+                if (is_numeric($input) && $input === $zeroDaysTimestamp) {
+                    return $format === 'Y-m-d' ? $currentDate : $currentDate . ' 00:00:00';
                 }
-                return $input;
+                return $format === 'Y-m-d' ? $input : $input . ' 00:00:00';
             });
 
         $this->scopeConfigMock->method('getValue')
