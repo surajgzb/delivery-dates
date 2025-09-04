@@ -76,7 +76,7 @@ class SaveToOrderTest extends TestCase
                 ['delivery_instructions', $deliveryInstructions],
                 ['delivery_date', $validDeliveryDate]
             )
-            ->willReturnSelf();
+            ->willReturn($this->returnSelf());
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
@@ -187,7 +187,7 @@ class SaveToOrderTest extends TestCase
                 ['delivery_instructions', $deliveryInstructions],
                 ['delivery_date', '']
             )
-            ->willReturnSelf();
+            ->willReturn($this->returnSelf());
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
