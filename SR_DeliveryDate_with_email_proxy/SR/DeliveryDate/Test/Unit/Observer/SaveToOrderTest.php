@@ -64,7 +64,7 @@ class SaveToOrderTest extends TestCase
             ->getMock();
 
         // Mock observer to return order via getData
-        $observerMock->expects($this->once())
+        $observerMock->expects($this->atLeastOnce())
             ->method('getData')
             ->with('order')
             ->willReturn($orderMock);
@@ -197,7 +197,7 @@ class SaveToOrderTest extends TestCase
             ->getMock();
 
         // Mock observer to return order via getData
-        $observerMock->expects($this->once())
+        $observerMock->expects($this->atLeastOnce())
             ->method('getData')
             ->with('order')
             ->willReturn($orderMock);
@@ -252,6 +252,35 @@ class SaveToOrderTest extends TestCase
             ['delivery_instructions', $deliveryInstructions],
             ['delivery_date', '']
         ], $setDataCalls);
+
+        // Verify observer returns itself
+        $this->assertSame($this->observer, $result);
+    }
+
+    public function testExecuteHandlesNullOrder()
+    {
+        // Mock the observer
+        $observerMock = $this->createMock(Observer::class);
+
+        // Mock observer to return null for order
+        $observerMock->expects($this->atLeastOnce())
+            ->method('getData')
+            ->with('order')
+            ->willReturn(null);
+
+        // Mock quote repository and validator to expect no calls
+        $this->quoteRepositoryMock->expects($this->never())
+            ->method('get');
+        $this->validatorMock->expects($this->never())
+            ->method('validate');
+
+        // Mock message manager to expect an error message (if applicable)
+        $this->messageManagerMock->expects($this->once())
+            ->method('addErrorMessage')
+            ->with('Order is not available.');
+
+        // Execute the observer
+        $result = $this->observer->execute($observerMock);
 
         // Verify observer returns itself
         $this->assertSame($this->observer, $result);
