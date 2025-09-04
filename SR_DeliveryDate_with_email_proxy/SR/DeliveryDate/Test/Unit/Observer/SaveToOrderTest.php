@@ -60,9 +60,10 @@ class SaveToOrderTest extends TestCase
         $orderMock = $this->createMock(Order::class);
         $quoteMock = $this->createMock(Quote::class);
 
-        // Mock observer to return order
+        // Mock observer to return order via getData
         $observerMock->expects($this->once())
-            ->method('getOrder')
+            ->method('getData')
+            ->with('order')
             ->willReturn($orderMock);
 
         // Mock order to return quote ID and allow setting data
@@ -117,9 +118,10 @@ class SaveToOrderTest extends TestCase
         $orderMock = $this->createMock(Order::class);
         $quoteMock = $this->createMock(Quote::class);
 
-        // Mock observer to return order
+        // Mock observer to return order via getData
         $observerMock->expects($this->once())
-            ->method('getOrder')
+            ->method('getData')
+            ->with('order')
             ->willReturn($orderMock);
 
         // Mock order to return quote ID
@@ -169,9 +171,10 @@ class SaveToOrderTest extends TestCase
         $orderMock = $this->createMock(Order::class);
         $quoteMock = $this->createMock(Quote::class);
 
-        // Mock observer to return order
+        // Mock observer to return order via getData
         $observerMock->expects($this->once())
-            ->method('getOrder')
+            ->method('getData')
+            ->with('order')
             ->willReturn($orderMock);
 
         // Mock order to return quote ID and allow setting data
