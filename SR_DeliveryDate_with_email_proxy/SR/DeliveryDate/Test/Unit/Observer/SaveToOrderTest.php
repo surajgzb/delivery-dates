@@ -71,15 +71,14 @@ class SaveToOrderTest extends TestCase
             ->method('getQuoteId')
             ->willReturn(123);
 
-        // Mock order setData calls using at() to specify order
-        $orderMock->expects($this->at(0))
+        // Mock order setData calls using withConsecutive
+        $orderMock->expects($this->exactly(2))
             ->method('setData')
-            ->with('delivery_instructions', $deliveryInstructions)
-            ->willReturnSelf();
-        $orderMock->expects($this->at(1))
-            ->method('setData')
-            ->with('delivery_date', $validDeliveryDate)
-            ->willReturnSelf();
+            ->withConsecutive(
+                [$this->equalTo('delivery_instructions'), $this->equalTo($deliveryInstructions)],
+                [$this->equalTo('delivery_date'), $this->equalTo($validDeliveryDate)]
+            )
+            ->willReturnOnConsecutiveCalls($this->returnSelf(), $this->returnSelf());
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
@@ -185,15 +184,14 @@ class SaveToOrderTest extends TestCase
             ->method('getQuoteId')
             ->willReturn(123);
 
-        // Mock order setData calls using at() to specify order
-        $orderMock->expects($this->at(0))
+        // Mock order setData calls using withConsecutive
+        $orderMock->expects($this->exactly(2))
             ->method('setData')
-            ->with('delivery_instructions', $deliveryInstructions)
-            ->willReturnSelf();
-        $orderMock->expects($this->at(1))
-            ->method('setData')
-            ->with('delivery_date', '')
-            ->willReturnSelf();
+            ->withConsecutive(
+                [$this->equalTo('delivery_instructions'), $this->equalTo($deliveryInstructions)],
+                [$this->equalTo('delivery_date'), $this->equalTo('')]
+            )
+            ->willReturnOnConsecutiveCalls($this->returnSelf(), $this->returnSelf());
 
         // Mock quote repository to return quote
         $this->quoteRepositoryMock->expects($this->once())
